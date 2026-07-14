@@ -40,8 +40,12 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   protected readonly theme = signal<'dark' | 'light'>('dark');
   protected readonly mobileMenuOpen = signal<boolean>(false);
   protected readonly showSuccessState = signal<boolean>(false);
+  protected readonly customGreeting = signal<string | null>(null);
+  protected readonly visualizerState = signal<'idle' | 'transaction' | 'duplicate' | 'cache'>('idle');
+  protected readonly visualizerMessage = signal<string>('Select an action below to visualize how transactions are processed.');
   
   // Form Signals
+  protected readonly formspreeId = signal<string>(''); // Enter your Formspree ID here to receive real emails!
   protected readonly formName = signal<string>('');
   protected readonly formEmail = signal<string>('');
   protected readonly formMessage = signal<string>('');
@@ -288,6 +292,17 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     this.theme.set(savedTheme as 'dark' | 'light');
     document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Personalization Parameter Detection (robust search + hash fallback)
+    const searchString = window.location.search || (window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+    const params = new URLSearchParams(searchString);
+    const name = params.get('name');
+    const company = params.get('company');
+    if (name && company) {
+      this.customGreeting.set(`Hello ${name} from ${company}! Welcome to my portfolio.`);
+    } else if (name) {
+      this.customGreeting.set(`Hello ${name}! Welcome to my portfolio.`);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -344,22 +359,53 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     this.formStatus.set("Sending your message...");
     this.formStatusClass.set("");
 
-    // Simulate sending message to backend (e.g. Formspree / Vercel Endpoint)
-    setTimeout(() => {
-      this.showSuccessState.set(true);
-      this.triggerConfetti();
-
-      // Reset form fields
-      this.formName.set('');
-      this.formEmail.set('');
-      this.formMessage.set('');
-      this.formStatus.set('');
-
-      // Return back to form state after 5 seconds
+    const id = this.formspreeId();
+    if (id) {
+      // Real form submission to Formspree
+      fetch(`https://formspree.io/f/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: message
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          this.showSuccessState.set(true);
+          this.triggerConfetti();
+          this.resetForm();
+        } else {
+          this.formStatus.set("Failed to send message. Please try again.");
+          this.formStatusClass.set("error");
+        }
+      })
+      .catch(() => {
+        this.formStatus.set("Failed to send message. Check your connection.");
+        this.formStatusClass.set("error");
+      });
+    } else {
+      // Simulation mode if Formspree ID is empty
       setTimeout(() => {
-        this.showSuccessState.set(false);
-      }, 5000);
-    }, 1000);
+        this.showSuccessState.set(true);
+        this.triggerConfetti();
+        this.resetForm();
+      }, 1000);
+    }
+  }
+
+  private resetForm(): void {
+    this.formName.set('');
+    this.formEmail.set('');
+    this.formMessage.set('');
+    this.formStatus.set('');
+    setTimeout(() => {
+      this.showSuccessState.set(false);
+    }, 5000);
   }
 
   private triggerConfetti(): void {
@@ -414,6 +460,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       this.mouse.x = null;
       this.mouse.y = null;
     });
+
 
     this.initParticles(canvas);
     this.animateParticles();
@@ -510,5 +557,25 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.animationFrameId = requestAnimationFrame(() => this.animateParticles());
+  }
+
+  protected runSimulation(state: 'transaction' | 'duplicate' | 'cache'): void {
+    this.visualizerState.set(state);
+    
+    if (state === 'transaction') {
+      this.visualizerMessage.set('Processing standard transaction: API Gateway auth succeeded -> Published to Kafka queue -> Go Consumer received -> Distributed lock acquired in Redis -> Normalized Ledger entry committed to PostgreSQL Database.');
+    } else if (state === 'duplicate') {
+      this.visualizerMessage.set('Processing duplicate transaction: Second request arrives -> Go Server checks Redis for Idempotency Key -> Cache hit confirms it was already processed -> Operation blocked instantly, preventing double charge.');
+    } else if (state === 'cache') {
+      this.visualizerMessage.set('Cache lookup: Go Server queries Redis cluster -> Cache hit -> Record returned instantly, avoiding expensive database queries.');
+    }
+
+    // Return to idle after 8 seconds
+    setTimeout(() => {
+      if (this.visualizerState() === state) {
+        this.visualizerState.set('idle');
+        this.visualizerMessage.set('Select an action below to visualize how transactions are processed.');
+      }
+    }, 8500);
   }
 }
