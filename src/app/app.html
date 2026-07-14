@@ -68,7 +68,13 @@
     <section id="hero" class="section hero-section">
         <div class="container hero-container">
             <div class="hero-text-content">
-                <div class="hero-greeting">Hello, I'm Shiva Avinash Siripuram</div>
+                <div class="hero-greeting">
+                    @if (customGreeting()) {
+                        {{ customGreeting() }}
+                    } @else {
+                        Hello, I'm Shiva Avinash Siripuram
+                    }
+                </div>
                 <h1 class="hero-title">
                     Architecting <span class="text-glow">{{ activeProfile().role }}</span>
                 </h1>
@@ -232,7 +238,97 @@
             </div>
         </div>
     </section>
+    <!-- System Architecture Visualizer Section -->
+    <section class="section visualizer-section">
+        <div class="container">
+            <h2 class="section-title">Distributed System Visualizer</h2>
+            <p class="section-subtitle">Observe live microservices routing, idempotency validations, and caching pipelines</p>
+            
+            <div class="visualizer-container glass-panel" [class]="visualizerState()">
+                <!-- Message Banner -->
+                <div class="visualizer-banner">
+                    <p>{{ visualizerMessage() }}</p>
+                </div>
+                
+                <!-- System Diagram nodes -->
+                <div class="visualizer-nodes">
+                    <!-- Client Node -->
+                    <div class="vis-node client" [class.active]="visualizerState() !== 'idle'">
+                        <div class="vis-node-icon">💻</div>
+                        <span class="vis-node-label">Client / UI</span>
+                    </div>
 
+                    <!-- Line 1: Client -> Gateway -->
+                    <div class="vis-line line-c-g">
+                        <div class="vis-flow-dot"></div>
+                    </div>
+
+                    <!-- Gateway Node -->
+                    <div class="vis-node gateway" [class.active]="visualizerState() !== 'idle'">
+                        <div class="vis-node-icon">🛡️</div>
+                        <span class="vis-node-label">API Gateway</span>
+                    </div>
+
+                    <!-- Line 2: Gateway -> Kafka / Cache -->
+                    <div class="vis-line line-g-k">
+                        <div class="vis-flow-dot"></div>
+                    </div>
+
+                    <!-- Kafka Node -->
+                    <div class="vis-node queue" [class.active]="visualizerState() === 'transaction'">
+                        <div class="vis-node-icon">📥</div>
+                        <span class="vis-node-label">Kafka Queue</span>
+                    </div>
+
+                    <!-- Line 3: Kafka -> Go Consumer -->
+                    <div class="vis-line line-k-e">
+                        <div class="vis-flow-dot"></div>
+                    </div>
+
+                    <!-- Go Worker Node -->
+                    <div class="vis-node engine" [class.active]="visualizerState() !== 'idle'">
+                        <div class="vis-node-icon">🚀</div>
+                        <span class="vis-node-label">Go Worker</span>
+                    </div>
+
+                    <!-- Line 4: Go -> Redis -->
+                    <div class="vis-line line-e-r">
+                        <div class="vis-flow-dot"></div>
+                    </div>
+
+                    <!-- Redis Cache Node -->
+                    <div class="vis-node cache" [class.active]="visualizerState() !== 'idle'">
+                        <div class="vis-node-icon">⚡</div>
+                        <span class="vis-node-label">Redis Cache</span>
+                    </div>
+
+                    <!-- Line 5: Go -> Database -->
+                    <div class="vis-line line-e-d">
+                        <div class="vis-flow-dot"></div>
+                    </div>
+
+                    <!-- Database Node -->
+                    <div class="vis-node database" [class.active]="visualizerState() === 'transaction'">
+                        <div class="vis-node-icon">🗄️</div>
+                        <span class="vis-node-label">Postgres DB</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Controls -->
+                <div class="visualizer-controls">
+                    <button class="btn btn-outline btn-sm" [class.active]="visualizerState() === 'transaction'" (click)="runSimulation('transaction')">
+                        ⚡ Simulate Transaction
+                    </button>
+                    <button class="btn btn-outline btn-sm" [class.active]="visualizerState() === 'duplicate'" (click)="runSimulation('duplicate')">
+                        🛡️ Simulate Duplicate Charge
+                    </button>
+                    <button class="btn btn-outline btn-sm" [class.active]="visualizerState() === 'cache'" (click)="runSimulation('cache')">
+                        🚀 Simulate Cache Hit (Redis)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- Contact Section -->
     <section id="contact" class="section contact-section">
         <div class="container contact-container">
