@@ -379,13 +379,16 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
           this.showSuccessState.set(true);
           this.triggerConfetti();
           this.resetForm();
+        } else if (response.status === 402) {
+          this.formStatus.set("Capacity limit reached: My free-tier inbox has hit its monthly quota! Please email or message me on LinkedIn directly above.");
+          this.formStatusClass.set("error");
         } else {
-          this.formStatus.set("Failed to send message. Please try again.");
+          this.formStatus.set("Oops! Something went wrong on the server. Please email me directly instead.");
           this.formStatusClass.set("error");
         }
       })
       .catch(() => {
-        this.formStatus.set("Failed to send message. Check your connection.");
+        this.formStatus.set("Connection error: Please check your internet connection and try again.");
         this.formStatusClass.set("error");
       });
     } else {
