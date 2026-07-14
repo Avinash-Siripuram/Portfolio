@@ -1,0 +1,304 @@
+<!-- Interactive Canvas Background -->
+<canvas #particleCanvas id="particle-canvas"></canvas>
+
+<!-- Header / Navbar -->
+<header class="navbar">
+    <div class="navbar-container">
+        <a href="#" class="logo">
+            <span class="logo-accent">&lt;</span>Shiva Avinash<span class="logo-accent"> /&gt;</span>
+        </a>
+        
+        <nav class="nav-menu" [class.mobile-active]="mobileMenuOpen()">
+            <a href="#about" class="nav-link" (click)="mobileMenuOpen.set(false)">About</a>
+            <a href="#skills" class="nav-link" (click)="mobileMenuOpen.set(false)">Skills</a>
+            <a href="#experience" class="nav-link" (click)="mobileMenuOpen.set(false)">Experience</a>
+            <a href="#projects" class="nav-link" (click)="mobileMenuOpen.set(false)">Projects</a>
+            <a href="#contact" class="nav-link" (click)="mobileMenuOpen.set(false)">Contact</a>
+        </nav>
+
+        <div class="nav-actions">
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="btn-icon" (click)="toggleTheme()" aria-label="Toggle theme">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+            
+            <!-- Resume Download Action (updates dynamically) -->
+            <a id="nav-resume-btn" [href]="activeProfile().resumeLink" download class="btn btn-primary btn-sm">Resume</a>
+        </div>
+
+        <!-- Hamburger menu for mobile -->
+        <button class="mobile-menu-toggle" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<!-- Profile Perspective Switcher Bar (Sticky Sub-nav) -->
+<div class="perspective-bar">
+    <div class="perspective-container">
+        <span class="perspective-label">Select Perspective:</span>
+        <div class="perspective-options" role="radiogroup" aria-label="Choose profile focus">
+            <button class="perspective-btn" [class.active]="currentProfile() === 'fullstack'" (click)="selectProfile('fullstack')">
+                <svg viewBox="0 0 24 24" class="btn-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                Full-Stack Cloud
+            </button>
+            <button class="perspective-btn" [class.active]="currentProfile() === 'backend'" (click)="selectProfile('backend')">
+                <svg viewBox="0 0 24 24" class="btn-svg"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+                Backend (Go)
+            </button>
+            <button class="perspective-btn" [class.active]="currentProfile() === 'frontend'" (click)="selectProfile('frontend')">
+                <svg viewBox="0 0 24 24" class="btn-svg"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-6.414l-2.293-2.293-1.414 1.414L11 18l6-6-1.414-1.414L11 15.586z"/></svg>
+                Frontend (Angular)
+            </button>
+            <button class="perspective-btn" [class.active]="currentProfile() === 'payments'" (click)="selectProfile('payments')">
+                <svg viewBox="0 0 24 24" class="btn-svg"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                Payments
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="main-content">
+    
+    <!-- Hero Section -->
+    <section id="hero" class="section hero-section">
+        <div class="container hero-container">
+            <div class="hero-text-content">
+                <div class="hero-greeting">Hello, I'm Shiva Avinash Siripuram</div>
+                <h1 class="hero-title">
+                    Architecting <span class="text-glow">{{ activeProfile().role }}</span>
+                </h1>
+                <p class="hero-description">
+                    {{ activeProfile().description }}
+                </p>
+                
+                <!-- Stats Badges -->
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <span class="stat-num">{{ activeProfile().stats.years }}</span>
+                        <span class="stat-lbl">Years Experience</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-num">{{ activeProfile().stats.tpm }}</span>
+                        <span class="stat-lbl">Focus / Throughput</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-num">{{ activeProfile().stats.uptime }}</span>
+                        <span class="stat-lbl">Service / Standard</span>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="#projects" class="btn btn-primary">Explore Projects</a>
+                    <a id="hero-resume-btn" [href]="activeProfile().resumeLink" download class="btn btn-outline">
+                        <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Download Resume
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-glow-sphere"></div>
+                <div class="tech-stack-constellation" id="tech-constellation">
+                    @for (badge of constellationBadges(); track badge.name) {
+                        <div class="constellation-badge highlighted" [style.top]="badge.top" [style.left]="badge.left" [style.animation-delay]="badge.delay">
+                            {{ badge.name }}
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about-section">
+        <div class="container">
+            <h2 class="section-title">Professional Summary</h2>
+            <div class="about-card glass-panel">
+                <p class="summary-paragraph">
+                    {{ activeProfile().summary }}
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section skills-section">
+        <div class="container">
+            <h2 class="section-title">Core Competencies & Skills</h2>
+            <p class="section-subtitle">Skills matching your selected perspective are highlighted in neon glow</p>
+            
+            <div class="skills-grid">
+                <div class="skills-category-card glass-panel">
+                    <h3>Languages & Core</h3>
+                    <div class="skills-list">
+                        @for (skill of allSkills.languages; track skill) {
+                            <span class="skill-badge" [class.highlighted]="isSkillHighlighted(skill, 'languages')">
+                                {{ skill }}
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="skills-category-card glass-panel">
+                    <h3>Backend & Architecture</h3>
+                    <div class="skills-list">
+                        @for (skill of allSkills.backend; track skill) {
+                            <span class="skill-badge" [class.highlighted]="isSkillHighlighted(skill, 'backend')">
+                                {{ skill }}
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="skills-category-card glass-panel">
+                    <h3>Frontend & UI</h3>
+                    <div class="skills-list">
+                        @for (skill of allSkills.frontend; track skill) {
+                            <span class="skill-badge" [class.highlighted]="isSkillHighlighted(skill, 'frontend')">
+                                {{ skill }}
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="skills-category-card glass-panel">
+                    <h3>Cloud, DevOps & Storage</h3>
+                    <div class="skills-list">
+                        @for (skill of allSkills.cloud; track skill) {
+                            <span class="skill-badge" [class.highlighted]="isSkillHighlighted(skill, 'cloud')">
+                                {{ skill }}
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section experience-section">
+        <div class="container">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="timeline" id="experience-timeline">
+                @for (exp of activeProfile().experience; track exp.role; let idx = $index) {
+                    <div class="timeline-item active">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content glass-panel">
+                            <div class="timeline-header">
+                                <div>
+                                    <h3 class="timeline-title">{{ exp.role }}</h3>
+                                    <span class="timeline-company">{{ exp.company }}</span>
+                                </div>
+                                <span class="timeline-date">{{ exp.date }}</span>
+                            </div>
+                            <div class="timeline-body">
+                                <ul>
+                                    @for (bullet of exp.bullets; track bullet) {
+                                        <li>{{ bullet }}</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section projects-section">
+        <div class="container">
+            <h2 class="section-title">Key Projects</h2>
+            
+            <div class="projects-grid">
+                @for (project of activeProfile().projects; track project.title) {
+                    <div class="project-card glass-panel">
+                        <div class="project-icon">{{ project.icon }}</div>
+                        <h3 class="project-title">{{ project.title }}</h3>
+                        <p class="project-desc">{{ project.desc }}</p>
+                        <div class="project-tech-tags">
+                            @for (tag of project.tags; track tag) {
+                                <span class="project-tag">{{ tag }}</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact-section">
+        <div class="container contact-container">
+            <div class="contact-info">
+                <h2 class="section-title text-left">Get In Touch</h2>
+                <p class="contact-desc">
+                    Have an opportunity, want to collaborate on a fintech application, or just want to chat about Go microservices, Cloud architectures, or Angular micro-frontends? Drop me a message!
+                </p>
+                
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <span class="icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </span>
+                        <a href="mailto:avinashsiripuram792@gmail.com">avinashsiripuram792@gmail.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </span>
+                        <a href="tel:+918555062539">+91 8555062539</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </span>
+                        <span>Hyderabad, TS, India</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                        </span>
+                        <a href="https://linkedin.com/in/avinashf792" target="_blank" rel="noopener noreferrer">linkedin.com/in/avinashf792</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form-container glass-panel">
+                <form id="contact-form" class="contact-form" (submit)="handleFormSubmit($event)">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" [value]="formName()" (input)="onNameInput($event)" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" id="email" name="email" [value]="formEmail()" (input)="onEmailInput($event)" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" [value]="formMessage()" (input)="onMessageInput($event)" placeholder="Let's build something awesome..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                    @if (formStatus()) {
+                        <div id="form-status" class="form-status" [class]="formStatusClass()">{{ formStatus() }}</div>
+                    }
+                </form>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container footer-container">
+        <p>&copy; 2026 Shiva Avinash Siripuram. All rights reserved.</p>
+        <p>Engineered for high performance and premium experiences.</p>
+    </div>
+</footer>
