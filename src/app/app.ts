@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, signal, computed, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, computed, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 
 interface Experience {
   role: string;
@@ -30,6 +30,7 @@ interface Profile {
   templateUrl: './app.html',
   styleUrl: './app.css',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
 })
 export class App implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('particleCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -333,19 +334,27 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   protected handleFormSubmit(event: Event): void {
     event.preventDefault();
-    if (!this.formName() || !this.formEmail() || !this.formMessage()) return;
+    const name = this.formName();
+    const email = this.formEmail();
+    const message = this.formMessage();
+    if (!name || !email || !message) return;
 
-    this.formStatus.set("Sending message...");
-    this.formStatusClass.set("");
+    this.formStatus.set("Opening your email client...");
+    this.formStatusClass.set("success");
+
+    // Construct mailto link
+    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
+    const body = encodeURIComponent(`Hello Shiva Avinash,\n\n${message}\n\nBest regards,\n${name}\nEmail: ${email}`);
 
     setTimeout(() => {
-      this.formStatus.set("Thank you! Your message has been sent successfully.");
-      this.formStatusClass.set("success");
+      window.location.href = `mailto:avinashsiripuram792@gmail.com?subject=${subject}&body=${body}`;
+      this.formStatus.set("Email draft created! Please check your email app to send.");
+      
       // Reset form fields
       this.formName.set('');
       this.formEmail.set('');
       this.formMessage.set('');
-    }, 1200);
+    }, 800);
   }
 
   // --- Mobile Menu ---
