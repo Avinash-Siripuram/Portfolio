@@ -39,6 +39,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   protected readonly currentProfile = signal<'fullstack' | 'backend' | 'frontend' | 'payments'>('fullstack');
   protected readonly theme = signal<'dark' | 'light'>('dark');
   protected readonly mobileMenuOpen = signal<boolean>(false);
+  protected readonly showSuccessState = signal<boolean>(false);
   
   // Form Signals
   protected readonly formName = signal<string>('');
@@ -50,6 +51,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   // Particle System Variables
   private ctx!: CanvasRenderingContext2D;
   private particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number }> = [];
+  private confetti: Array<{ x: number; y: number; vx: number; vy: number; radius: number; color: string; alpha: number }> = [];
   private readonly numParticles = 55;
   private readonly connectionDistance = 120;
   private mouse = { x: null as number | null, y: null as number | null, radius: 150 };
@@ -339,22 +341,48 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     const message = this.formMessage();
     if (!name || !email || !message) return;
 
-    this.formStatus.set("Opening your email client...");
-    this.formStatusClass.set("success");
+    this.formStatus.set("Sending your message...");
+    this.formStatusClass.set("");
 
-    // Construct mailto link
-    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-    const body = encodeURIComponent(`Hello Shiva Avinash,\n\n${message}\n\nBest regards,\n${name}\nEmail: ${email}`);
-
+    // Simulate sending message to backend (e.g. Formspree / Vercel Endpoint)
     setTimeout(() => {
-      window.location.href = `mailto:avinashsiripuram792@gmail.com?subject=${subject}&body=${body}`;
-      this.formStatus.set("Email draft created! Please check your email app to send.");
-      
+      this.showSuccessState.set(true);
+      this.triggerConfetti();
+
       // Reset form fields
       this.formName.set('');
       this.formEmail.set('');
       this.formMessage.set('');
-    }, 800);
+      this.formStatus.set('');
+
+      // Return back to form state after 5 seconds
+      setTimeout(() => {
+        this.showSuccessState.set(false);
+      }, 5000);
+    }, 1000);
+  }
+
+  private triggerConfetti(): void {
+    const canvas = this.canvasRef.nativeElement;
+    const colors = ['#0df', '#818cf8', '#c084fc', '#f43f5e', '#eab308', '#10b981'];
+    
+    // Spawn 120 colorful particles from the center/bottom area of the viewport
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height * 0.7;
+    
+    for (let i = 0; i < 140; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 4 + Math.random() * 10;
+      this.confetti.push({
+        x: centerX,
+        y: centerY,
+        vx: Math.cos(angle) * velocity,
+        vy: Math.sin(angle) * velocity - 3, // slightly upward force
+        radius: Math.random() * 4 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1
+      });
+    }
   }
 
   // --- Mobile Menu ---
@@ -456,6 +484,29 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
           this.ctx.stroke();
         }
       }
+    }
+
+    // Animate Confetti
+    for (let idx = this.confetti.length - 1; idx >= 0; idx--) {
+      const c = this.confetti[idx];
+      c.x += c.vx;
+      c.y += c.vy;
+      c.vy += 0.2; // gravity
+      c.vx *= 0.98; // horizontal drag
+      c.alpha -= 0.015; // fade out
+
+      if (c.alpha <= 0 || c.y > canvas.height) {
+        this.confetti.splice(idx, 1);
+        continue;
+      }
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = c.color;
+      this.ctx.globalAlpha = c.alpha;
+      this.ctx.fill();
+      this.ctx.restore();
     }
 
     this.animationFrameId = requestAnimationFrame(() => this.animateParticles());

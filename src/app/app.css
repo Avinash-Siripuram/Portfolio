@@ -781,3 +781,98 @@
         font-size: 2.8rem;
     }
 }
+
+/* Animated Success Card & Checkmark */
+.success-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.success-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1.5rem;
+}
+
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #0df; /* Neon blue/teal */
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #0df;
+    animation: fillCheckmark .4s ease-in-out .4s forwards, scaleCheckmark .3s ease-in-out .9s forwards;
+}
+
+[data-theme="light"] .success-checkmark {
+    stroke: #4f46e5; /* Indigo checkmark in light theme */
+    box-shadow: inset 0px 0px 0px #4f46e5;
+    animation: fillCheckmarkLight .4s ease-in-out .4s forwards, scaleCheckmark .3s ease-in-out .9s forwards;
+}
+
+.success-checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #0df;
+    fill: none;
+    animation: strokeCircle .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+[data-theme="light"] .success-checkmark-circle {
+    stroke: #4f46e5;
+}
+
+.success-checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: strokeCheck .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards;
+}
+
+.success-title {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-primary);
+}
+
+.success-desc {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    max-width: 320px;
+}
+
+/* Animations */
+@keyframes scaleUp {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes strokeCircle {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes strokeCheck {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes fillCheckmark {
+    to { box-shadow: inset 0px 0px 0px 40px rgba(0, 221, 255, 0.1); }
+}
+
+@keyframes fillCheckmarkLight {
+    to { box-shadow: inset 0px 0px 0px 40px rgba(79, 70, 229, 0.1); }
+}
+
+@keyframes scaleCheckmark {
+    0%, 100% { transform: none; }
+    50% { transform: scale3d(1.1, 1.1, 1); }
+}
