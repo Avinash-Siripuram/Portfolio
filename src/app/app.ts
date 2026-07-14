@@ -45,7 +45,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   protected readonly visualizerMessage = signal<string>('Select an action below to visualize how transactions are processed.');
   
   // Form Signals
-  protected readonly formspreeId = signal<string>(''); // Enter your Formspree ID here to receive real emails!
+  protected readonly formspreeId = signal<string>('mwvgpqjq'); // Enter your Formspree ID here to receive real emails!
   protected readonly formName = signal<string>('');
   protected readonly formEmail = signal<string>('');
   protected readonly formMessage = signal<string>('');
